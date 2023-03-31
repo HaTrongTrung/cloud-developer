@@ -195,6 +195,24 @@ functions:
         Resource:
           - '*'
 
+  SearchTodos:
+    handler: src/lambda/http/searchTodos.handler
+    events:
+      - http:
+          method: get
+          path: todos/search/{name}
+          cors: true
+          authorizer: Auth
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_CREATED_AT_INDEX}
+
 resources:
   Resources:
     # Add necessary AWS resources. You will need at least the following AWS resources

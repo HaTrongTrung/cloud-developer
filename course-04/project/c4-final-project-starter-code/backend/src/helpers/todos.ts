@@ -10,6 +10,10 @@ export async function getTodosForUser(userId: string): Promise<TodoItem[]> {
     return todoAccess.getTodosForUser(userId)
 }
 
+export async function getTodosByUserAndName(userId: string, name: string): Promise<TodoItem[]> {
+    return todoAccess.getTodosByUserAndName(userId, name)
+}
+
 export async function createTodo(
     createTodoRequest: CreateTodoRequest,
     userId: string

@@ -14,7 +14,7 @@ import {
   Loader
 } from 'semantic-ui-react'
 
-import { createTodo, deleteTodo, getTodos, patchTodo } from '../api/todos-api'
+import { createTodo, deleteTodo, getTodos, patchTodo, searchTodo } from '../api/todos-api'
 import Auth from '../auth/Auth'
 import { Todo } from '../types/Todo'
 
@@ -27,21 +27,43 @@ interface TodosState {
   todos: Todo[]
   newTodoName: string
   loadingTodos: boolean
+  searchString: string
 }
 
 export class Todos extends React.PureComponent<TodosProps, TodosState> {
   state: TodosState = {
     todos: [],
     newTodoName: '',
-    loadingTodos: true
+    loadingTodos: true,
+    searchString: ''
   }
 
   handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ newTodoName: event.target.value })
   }
 
+  handleSearchValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({ searchString: event.target.value })
+  }
+
   onEditButtonClick = (todoId: string) => {
     this.props.history.push(`/todos/${todoId}/edit`)
+  }
+
+  onTodoSearch = async (event: React.ChangeEvent<HTMLButtonElement>) => {
+    try {
+      const todo = await searchTodo(this.props.auth.getIdToken(), this.state.searchString)
+      if (todo.length === 0) {
+        alert('No todo found')
+        // return
+      }
+      this.setState({
+        todos: todo,
+        newTodoName: ''
+      })
+    } catch {
+      alert('Todo search failed')
+    }
   }
 
   onTodoCreate = async (event: React.ChangeEvent<HTMLButtonElement>) => {
@@ -108,8 +130,37 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
 
         {this.renderCreateTodoInput()}
 
+        {this.renderSearchTodoInput()}
+
         {this.renderTodos()}
       </div>
+    )
+  }
+
+  renderSearchTodoInput() {
+    return (
+      <Grid.Row>
+        <Grid.Column width={16}>
+          <Button disabled={(this.state.searchString === '')} icon color="blue" onClick={() => this.componentDidMount()}>
+            <Icon name="refresh" />
+          </Button>
+
+          <Input
+            action={{
+              color: 'blue',
+              labelPosition: 'right',
+              icon: 'search',
+              content: 'Search',
+              onClick: this.onTodoSearch
+            }}
+            placeholder="To find the tasks..."
+            onChange={this.handleSearchValueChange}
+          />
+        </Grid.Column>
+        <Grid.Column width={16}>
+          <Divider />
+        </Grid.Column>
+      </Grid.Row>
     )
   }
 

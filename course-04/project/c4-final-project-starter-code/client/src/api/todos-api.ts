@@ -71,3 +71,14 @@ export async function getUploadUrl(
 export async function uploadFile(uploadUrl: string, file: Buffer): Promise<void> {
   await Axios.put(uploadUrl, file)
 }
+
+export async function searchTodo(idToken: string, searchString: string): Promise<Todo[]> {
+  const response = await Axios.get(`${apiEndpoint}/todos/search/${searchString}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${idToken}`
+    }
+  })
+  console.log(response.data.items)
+  return response.data.items
+}
